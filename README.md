@@ -1,8 +1,15 @@
 # Robotiq Gripper
 ## Hardware
-+ Robotiq 2F 140
++ Robotiq 2F-140
++ Robotiq Hand-E
 ### Connection
 Voltage Input: `24V`
+
+Current Input: `1A`
+
+details see in `3.2 Required Tools and Equipment`
+
+<img src="img/6.jpg">
 
 USB to RS-485
 
@@ -26,6 +33,24 @@ conda install pyserial
 pip install pyserial    # python2
 pip3 install pyserial   # python3
 ```
+## Serial Port
+### 1. check the serial port
+```
+ls -l /dev/ttyUSB0
+```
+output
+```
+crw-rw---- 1 root dialout 188, 0 3月   9 11:50 /dev/ttyUSB0
+```
+### 2. Serial port authorization
+```
+sudo chmod 777 /dev/ttyUSB0
+```
+output
+```
+crwxrwxrwx 1 root dialout 188, 0 3月   9 11:50 /dev/ttyUSB0
+```
+
 ## Run
 ### 1. activate gripper
 ```
@@ -72,17 +97,17 @@ tool: https://www.23bei.com/tool/59.html
 
 ## Close Gripper
 ### Force Control
-1. Full Force
+#### 1. Full Force
 ```
 09 10 03 E8 00 03 06 09 00 00 FF FF FF 42 29
 ```
-2. Half force
+#### 2. Half force
 ```
 09 10 03 E8 00 03 06 09 00 00 FF FF 80 03 C9
 ```
 ### Pose Control
-1. Controls the length of the gripper opening position. 
-2. The maximum position is 255. When judging the opening position, the larger the value, the smaller the opening position.
+#### 1. Controls the length of the gripper opening position. 
+#### 2. The maximum position is 255. When judging the opening position, the larger the value, the smaller the opening position.
 
 There are some examples
 ```
