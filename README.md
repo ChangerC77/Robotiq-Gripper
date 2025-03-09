@@ -11,14 +11,19 @@ details see in `3.2 Required Tools and Equipment`
 
 <img src="img/6.jpg">
 
+#### 1. 2F-140
+
 USB to RS-485
 
-<img src="img/1.png">
+<img src="img/1.png" width="100%" height="100%">
+
+#### 2. Hand-E
+<img src="img/7.jpg" width="100%" height="70%">
 
 Then connect the USB to the computer and control it directly through the serial port. After the power is connected, the indicator light is red, and then after connecting to the computer, the indicator light is blue when working. If the indicator light turns purple, there is a problem with the system and it needs to be restarted.
 
 ## Document
-[Download Robotiq PDF]("Robotiq 2F-85-140.pdf")
+Download Robotiq Gripper.pdf
 
 ## Gripper Length
 <img src="img/5.png" width="30%" height="30%">
