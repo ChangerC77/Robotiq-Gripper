@@ -15,10 +15,10 @@ details see in `3.2 Required Tools and Equipment`
 
 USB to RS-485
 
-<img src="img/1.png" width="100%" height="100%">
+<img src="img/1.png" width="70%" height="70%">
 
 #### 2. Hand-E
-<img src="img/7.jpg" width="100%" height="70%">
+<img src="img/7.jpg" width="70%" height="70%">
 
 Then connect the USB to the computer and control it directly through the serial port. After the power is connected, the indicator light is red, and then after connecting to the computer, the indicator light is blue when working. If the indicator light turns purple, there is a problem with the system and it needs to be restarted.
 
@@ -50,6 +50,7 @@ crw-rw---- 1 root dialout 188, 0 3月   9 11:50 /dev/ttyUSB0
 ### 2. Serial port authorization
 ```
 sudo chmod 777 /dev/ttyUSB0
+ls -l /dev/ttyUSB0
 ```
 output
 ```
@@ -70,11 +71,22 @@ python gripper_open.py
 python gripper_close.py
 ```
 
-### 4. control gripper (windows)
+### if in windows, you can control gripper
 ```
 python windows.py
 ```
 ## Driver
+### output the communication protocol
+<img src="img/4.png">
+
+range: `0 - 255 -> 0 - FF`
+
+`255, FF`: Full closed, velocity, force
+
+```
+python protocol.py
+```
+## Communication Protocol Method
 ### Step 1: Activation Request (clear and set rACT) 
 ```
 09 10 03 E8 00 03 06 00 00 00 00 00 00 73 30
@@ -83,22 +95,15 @@ python windows.py
 
 <img src="img/3.png" width="50%" height="50%">
 
-
-### Step 2: Read Gripper status until the activation is completed (Not required for actual use)
-
-### Step 3: Move the robot to the pick-up location
-
-### Step 4: Close the Gripper at full speed and full force
+### Step 2: Close the Gripper at full speed and full force
 
 <img src="img/4.png" width="50%" height="50%">
 
-position、velocity、force: ``FF FF FF``
+The following ``4229`` is the check code, which needs to be calculated based on the previous HEX representation. The calculation format is hexadecimal `(CRC16)(MODBUS RTU communication)`
 
-The following ``4229`` is the check code, which needs to be calculated based on the previous HEX representation. The calculation format is hexadecimal (CRC16) (MODBUS RTU communication)
+``Official Reference``: https://blog.robotiq.com/controlling-the-robotiq-2f-gripper-with-modbus-commands-in-python
 
-tool: https://www.23bei.com/tool/59.html
 
-``Reference``: https://blog.robotiq.com/controlling-the-robotiq-2f-gripper-with-modbus-commands-in-python
 
 ## Close Gripper
 ### Force Control
@@ -110,9 +115,9 @@ tool: https://www.23bei.com/tool/59.html
 ```
 09 10 03 E8 00 03 06 09 00 00 FF FF 80 03 C9
 ```
-### Pose Control
+### Position Control
 #### 1. Controls the length of the gripper opening position. 
-#### 2. The maximum position is 255. When judging the opening position, the larger the value, the smaller the opening position.
+#### 2. The maximum position is `255`. When judging the opening position, the larger the value, the smaller the opening position.
 
 There are some examples
 ```
