@@ -60,6 +60,6 @@ class GripperController:
 if __name__ == "__main__":
     gripper = GripperController()
     # activate the gripper
-    gripper.activate()
+    # gripper.activate()
     # gripper.open_gripper()
     # gripper.close_gripper()

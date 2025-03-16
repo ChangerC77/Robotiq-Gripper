@@ -52,12 +52,12 @@ def format_output(frame):
     """
     # 将字节帧转换为大写的十六进制字符串
     hex_string = ''.join(f'\\x{byte:02X}' for byte in frame)
-    return f"ser.write(b'{hex_string}')"
+    return f"self.ser.write(b'{hex_string}')"
 
 # 示例使用
 if __name__ == "__main__":
     # 输入位置、速度和力
-    print("255为夹爪全力闭合全速状态")
+    print("255: 夹爪全力闭合全速状态")
     position = int(input("请输入位置(0-255): "))
     speed = int(input("请输入速度(0-255): "))
     force = int(input("请输入力(0-255): "))
