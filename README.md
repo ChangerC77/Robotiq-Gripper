@@ -28,6 +28,10 @@ Download Robotiq Gripper.pdf
 ## Gripper Length
 <img src="img/5.png" width="30%" height="30%">
 
+## download the code
+```
+git clone https://github.com/ChangerC77/Robotiq-Gripper.git
+```
 ## Install Dependencies
 + conda
 ```
@@ -62,15 +66,40 @@ crwxrwxrwx 1 root dialout 188, 0 3月   9 11:50 /dev/ttyUSB0
 ```
 python gripper_activate.py
 ```
+output
+```
+b'\t\x10\x03\xe8\x00\x03\x010'
+activate response  b'091003e800030130'
+```
 ### 2. open gripper
 ```
 python gripper_open.py
+```
+output
+```
+opening the gripper
+open gripper respons应  b'091003e800030130'
 ```
 ### 3. close gripper
 ```
 python gripper_close.py
 ```
-
+output
+```
+closing the gripper
+close response  b'091003e800030130'
+```
+### 4. get info
+```
+python gripper_info.py
+```
+output
+```
+gOBJ_desc 的值是: Fingers have stopped due to a contact while closing before requested position. Object detected closing
+物体检测状态 (gOBJ): 2
+当前电流 (mA): 40 mA
+当前夹爪位置: 168
+```
 ### if in windows, you can control gripper
 ```
 python windows.py
