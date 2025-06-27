@@ -4,5 +4,5 @@ import gripper
 open the gripper
 """
 
-gripper = gripper.GripperController()
+gripper = gripper.RobotiqGripper()
 gripper.open_gripper()

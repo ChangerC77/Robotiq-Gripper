@@ -89,7 +89,11 @@ output
 closing the gripper
 close response  b'091003e800030130'
 ```
-### 4. get info
+### 4. move gripper
+```
+python gripper_move.py
+```
+### 5. get info
 ```
 python gripper_info.py
 ```
@@ -99,6 +103,14 @@ gOBJ_desc 的值是: Fingers have stopped due to a contact while closing before 
 物体检测状态 (gOBJ): 2
 当前电流 (mA): 40 mA
 当前夹爪位置: 168
+```
+### 6. tele with gello
+```
+python gripper_tele.py
+```
+### 7. tele with keyboard control
+```
+python gripper_feedback.py
 ```
 ### if in windows, you can control gripper
 ```
