@@ -57,8 +57,8 @@ def input_listener():
     """键盘监听线程函数"""
     global manual_control, lock_position, exit_flag
     print("\n[输入监听] 快捷键说明:")
-    print("  h: 进入保持模式")
-    print("  q: 退出保持模式")
+    print("  q: 进入保持模式")
+    print("  w: 退出保持模式")
     print("  x: 退出程序")
     print("  Ctrl+C: 强制退出")
 
@@ -67,10 +67,10 @@ def input_listener():
             char = NonBlockingInput.get_char()
             if char:
                 with manual_control_lock:
-                    if char == 'h':
+                    if char == 'q':
                         manual_control = True
                         print("\n[模式切换] 进入保持模式")
-                    elif char == 'q':
+                    elif char == 'w':
                         manual_control = False
                         lock_position = None
                         print("\n[模式切换] 退出保持模式")

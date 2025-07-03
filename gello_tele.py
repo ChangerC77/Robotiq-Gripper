@@ -23,6 +23,7 @@ def map_value(value, in_min, in_max, out_min, out_max):
 
 if __name__ == "__main__":
     gripper = RobotiqGripper()
+    gripper.activate_gripper()
     gripper.open_gripper()
 
     grasped = False

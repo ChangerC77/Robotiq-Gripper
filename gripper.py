@@ -3,7 +3,7 @@ import time
 import binascii
 
 class RobotiqGripper:
-    def __init__(self, port='/dev/ttyUSB0', baudrate=115200, timeout=1):
+    def __init__(self, port='/dev/gripper_port', baudrate=115200, timeout=1):
         """
         初始化串口连接，设置默认通信参数。
         """
@@ -199,4 +199,4 @@ class RobotiqGripper:
         self.ser.close()
 
 if __name__ == "__main__":
-    gripper = RobotiqGripper(port='/dev/ttyUSB0')
+    gripper = RobotiqGripper(port='/dev/gripper_port')

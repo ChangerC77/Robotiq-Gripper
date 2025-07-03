@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="功能包名" type="执行文件名" name="自定义名词" args="-d $(find pkg)/config/rviz.rviz" output="screen" />
+</launch>
