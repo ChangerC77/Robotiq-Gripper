@@ -57,9 +57,9 @@ def input_listener():
     """键盘监听线程函数"""
     global manual_control, lock_position, exit_flag
     print("\n[输入监听] 快捷键说明:")
-    print("  q: 进入保持模式")
-    print("  w: 退出保持模式")
-    print("  x: 退出程序")
+    print("  hold(h): 进入保持模式")
+    print("  teleoperation(t): 进入遥操作模式")
+    print("  quit(q): 退出程序")
     print("  Ctrl+C: 强制退出")
 
     with NonBlockingInput() as nbi:
@@ -67,15 +67,15 @@ def input_listener():
             char = NonBlockingInput.get_char()
             if char:
                 with manual_control_lock:
-                    if char == 'q':
-                        manual_control = True
-                        print("\n[模式切换] 进入保持模式")
-                    elif char == 'w':
+                    if char == 'h':
+                        manual_control = True             
+                        print("\n保持模式")
+                    elif char == 't':
                         manual_control = False
-                        lock_position = None
-                        print("\n[模式切换] 退出保持模式")
-                    elif char == 'x':
-                        print("\n[系统] 收到退出指令")
+                        lock_position = None     
+                        print("\n遥操作模式")
+                    elif char == 'q':
+                        print("\n程序退出")
                         exit_flag = True
             time.sleep(0.05)
 
@@ -106,14 +106,11 @@ if __name__ == "__main__":
                 try:
                     current_state = float(message["data"].decode())
 
-                    with manual_control_lock:
-                        if manual_control:
-                            # 保持模式
+                    with manual_control_lock:  # 线程锁
+                        if manual_control: # # 保持模式                           
                             if lock_position is None:
-                                lock_position = gripper.get_gripper_status()["position"]
-                                # current = gripper.get_gripper_status()["current"]
-                                print(f"\n[保持模式] 锁定位置: {lock_position}")
-                                # print(f"\n[保持模式] current mA: {current}")
+                                lock_position = gripper.get_gripper_status()["position"]                  
+                                print(f"\n锁定位置: {lock_position}")
                             gripper.move(position=lock_position, speed=0, force=20)
                         else:
                             # 正常控制模式

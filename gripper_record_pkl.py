@@ -64,7 +64,7 @@ class ForceControlledGripper:
             rospy.logerr(f"夹爪初始化错误: {str(e)}")
         
         # 订阅力话题
-        rospy.Subscriber('tactile_force', Float32, self.force_callback)
+        rospy.Subscriber('/tactile_0/force', Float32, self.force_callback)
         
         # 初始化Redis
         self.r = redis.Redis(host="localhost", port=6379, db=0)
@@ -72,6 +72,7 @@ class ForceControlledGripper:
         self.p.subscribe("gripper_channel")
         
         # 设置信号处理
+        signal.signal(signal.SIGTERM, self.signal_handler)
         signal.signal(signal.SIGINT, self.signal_handler)
         
         rospy.loginfo("力反馈夹爪控制器已启动")
@@ -79,13 +80,15 @@ class ForceControlledGripper:
 
     def signal_handler(self, sig, frame):
         """信号处理函数"""
-        self.exit_flag = True
-        rospy.loginfo("\n正在退出...")
-        if self.gripper_initialized:
-            self.gripper.open_gripper()
-        self.save_position_history()
-        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_settings)
-        sys.exit(0)
+        if sig == signal.SIGTERM:
+            self.exit_flag = True
+            rospy.loginfo("\n正在退出...")
+            if self.gripper_initialized:
+                self.gripper.open_gripper()
+            self.save_position_history()
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_settings)
+            time.sleep(5)
+            sys.exit(0)
 
     def get_key(self):
         """非阻塞获取键盘输入"""
@@ -168,84 +171,68 @@ class ForceControlledGripper:
             
         try:
             data = np.array(self.position_history, dtype=np.float32)
-            filename = os.path.join(self.save_path, self.get_next_filename())
-            
-            os.makedirs(self.save_path, exist_ok=True)
-            np.save(filename, data)
-            rospy.loginfo(f"夹爪位置历史已保存到: {filename}")
+            save_name = os.path.join(self.save_path, 'gripper.npy')
+            np.save(save_name, data)
+            rospy.loginfo(f"夹爪位置历史已保存到: {save_name}")
             print(f"记录的总帧数: {len(self.position_history)}")  # 打印总记录帧数
         except Exception as e:
             rospy.logerr(f"保存位置历史失败: {str(e)}")
 
     def run(self):
         """主控制循环"""
-        try:
-            tty.setcbreak(sys.stdin.fileno())
+        tty.setcbreak(sys.stdin.fileno())
+        
+        while not self.exit_flag and not rospy.is_shutdown():
             
-            while not self.exit_flag and not rospy.is_shutdown():
-                key = self.get_key()
-                if key == 'q':
-                    rospy.loginfo("用户请求退出...")
-                    self.exit_flag = True
-                    break
-                
-                message = self.p.get_message()
-                if message and message["type"] == "message":
-                    try:
-                        current_state = float(message["data"].decode())
-                        self.last_control_state = current_state
+            message = self.p.get_message()
+            if message and message["type"] == "message":
+                try:
+                    current_state = float(message["data"].decode())
+                    self.last_control_state = current_state
+                    
+                    if (self.force_hold and 
+                        abs(current_state - INPUT_MIN) < ZERO_POSITION_THRESHOLD):
+                        rospy.loginfo("\n舵机回到零位，解除保持状态")
+                        self.force_hold = False
+                        self.lock_position = None
+                        if self.gripper_initialized:
+                            self.gripper.move(
+                                position=OUTPUT_MIN,
+                                speed=MOVE_SPEED,
+                                force=MOVE_FORCE
+                            )
+                        continue
+                    
+                    if INPUT_MAX != INPUT_MIN:
+                        mapped_value = int((current_state - INPUT_MIN) * 
+                                        (OUTPUT_MAX - OUTPUT_MIN) / 
+                                        (INPUT_MAX - INPUT_MIN) + OUTPUT_MIN)
+                        mapped_value = max(OUTPUT_MIN, min(OUTPUT_MAX, mapped_value))
+                    else:
+                        mapped_value = OUTPUT_MIN
+                    
+                    target_pos = self.lock_position if self.force_hold else mapped_value
+                    
+                    if not self.move_gripper(target_pos):
+                        rospy.logwarn("夹爪移动未执行")
                         
-                        if (self.force_hold and 
-                            abs(current_state - INPUT_MIN) < ZERO_POSITION_THRESHOLD):
-                            rospy.loginfo("\n舵机回到零位，解除保持状态")
-                            self.force_hold = False
-                            self.lock_position = None
-                            if self.gripper_initialized:
-                                self.gripper.move(
-                                    position=OUTPUT_MIN,
-                                    speed=MOVE_SPEED,
-                                    force=MOVE_FORCE
-                                )
-                            continue
-                        
-                        if INPUT_MAX != INPUT_MIN:
-                            mapped_value = int((current_state - INPUT_MIN) * 
-                                         (OUTPUT_MAX - OUTPUT_MIN) / 
-                                         (INPUT_MAX - INPUT_MIN) + OUTPUT_MIN)
-                            mapped_value = max(OUTPUT_MIN, min(OUTPUT_MAX, mapped_value))
-                        else:
-                            mapped_value = OUTPUT_MIN
-                        
-                        target_pos = self.lock_position if self.force_hold else mapped_value
-                        
-                        if not self.move_gripper(target_pos):
-                            rospy.logwarn("夹爪移动未执行")
-                            
-                    except ValueError:
-                        rospy.logwarn("接收到无效的夹爪状态数据")
-                    except Exception as e:
-                        rospy.logerr(f"控制逻辑错误: {str(e)}")
+                except ValueError:
+                    rospy.logwarn("接收到无效的夹爪状态数据")
+                except Exception as e:
+                    rospy.logerr(f"控制逻辑错误: {str(e)}")
 
-                time.sleep(0.01)
-
-        except KeyboardInterrupt:
-            pass
-        finally:
-            self.exit_flag = True
-            if self.gripper_initialized:
-                self.gripper.open_gripper()
-            self.save_position_history()
-            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_settings)
-
+            time.sleep(0.01)
+    
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root_dir", type=str, default="~/Robotiq-Gripper/data")
+    parser.add_argument("--root_dir", type=str, default="/home/robotics/data_save")
+    parser.add_argument("--traj_number", type=int, default=255)
     args = parser.parse_args()
 
     # 处理路径
-    expanded_root = os.path.expanduser(args.root_dir)
-    os.makedirs(expanded_root, exist_ok=True)
+    save_path = os.path.join(args.root_dir, str(args.traj_number).zfill(4), 'gripper')
+    os.makedirs(save_path, exist_ok=True)
     
     controller = ForceControlledGripper()
-    controller.save_path = expanded_root  # 直接使用data目录
+    controller.save_path = save_path  # 直接使用data目录
     controller.run()

@@ -61,7 +61,7 @@ output
 crwxrwxrwx 1 root dialout 188, 0 3月   9 11:50 /dev/ttyUSB0
 ```
 
-## Run
+## Gripper Control
 ### 1. activate gripper
 ```
 python gripper_activate.py
@@ -110,9 +110,27 @@ python gripper_tele.py
 ```
 ### 7. tele with keyboard control
 ```
-python gripper_feedback.py
+python gripper_keyboard.py
 ```
-### if in windows, you can control gripper
+### 8. tactile closed-loop control and publish gripper position
+```
+python gripper_force_control.py
+```
+### 8. tactile closed-loop control and publish gripper position (ROS)
+```
+python gripper_force_control_node.py
+```
+## Tactile
+### 1. publish tactile (R0S)
+```
+python tactile_pub.py
+```
+### 2. subscribe tactile (R0S)
+```
+python tactile_sub.py
+``` 
+
+## (windows system), you can control gripper
 ```
 python windows.py
 ```

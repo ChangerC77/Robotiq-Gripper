@@ -15,19 +15,18 @@ class TacSensor:
         self.P, self.N, self.D, self.F, self.Fr, self.Mr = None, None, None, None, None, None
         self.exceed_force = False
 
-        tac3d_core_path = '/home/robotics/Tac3D-SDK-v3.3.0/Tac3D-Core/linux-x86_64'
-        tac_core = os.path.join(tac3d_core_path, 'Tac3D')
-        config_path = os.path.join(tac3d_core_path, 'config')
-        start_sensor_1_cmd = f"{tac_core} -c {config_path}/{self.SN1} -i 127.0.0.1 -p {port}"
-        start_sensor_2_cmd = f"{tac_core} -c {config_path}/{self.SN2} -i 127.0.0.1 -p {port}"
-        
-        subprocess.Popen(["gnome-terminal", "--", "bash", "-c", start_sensor_1_cmd])
-        subprocess.Popen(["gnome-terminal", "--", "bash", "-c", start_sensor_2_cmd])
-        subprocess.Popen([
-            "gnome-terminal",
-            "--tab", "--title=Sensor1", "--", "bash", "-c", start_sensor_1_cmd,
-            "--tab", "--title=Sensor2", "--", "bash", "-c", start_sensor_2_cmd
-        ])
+        # tac3d_core_path = '/home/robotics/Tac3D-SDK-v3.3.0/Tac3D-Core/linux-x86_64'
+        # tac_core = os.path.join(tac3d_core_path, 'Tac3D')
+        # config_path = os.path.join(tac3d_core_path, 'config')
+        # start_sensor_1_cmd = f"{tac_core} -c {config_path}/{self.SN1} -i 127.0.0.1 -p {port}"
+        # start_sensor_2_cmd = f"{tac_core} -c {config_path}/{self.SN2} -i 127.0.0.1 -p {port}"
+        # subprocess.Popen(["gnome-terminal", "--", "bash", "-c", start_sensor_1_cmd])
+        # subprocess.Popen(["gnome-terminal", "--", "bash", "-c", start_sensor_2_cmd])
+        # subprocess.Popen([
+        #     "gnome-terminal",
+        #     "--tab", "--title=Sensor1", "--", "bash", "-c", start_sensor_1_cmd,
+        #     "--tab", "--title=Sensor2", "--", "bash", "-c", start_sensor_2_cmd
+        # ])
 
         self.save_data_dict = {self.SN1: {'tactile': [], 'deform': [], 'force': [], 'timestamps': []},
                                self.SN2: {'tactile': [], 'deform': [], 'force': [], 'timestamps': []},
@@ -96,12 +95,12 @@ class TacSensor:
         self.tac3d.calibrate(SN=self.SN1)
         self.tac3d.calibrate(SN=self.SN2)
         while True:
-            if self.port == 0:
-                break
+            pass
+            
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root_dir", type=str, default="/home/robotics/workspace/xx_/real/scripts/umi/data_save")
+    parser.add_argument("--root_dir", type=str, default="/home/robotics/data_save")
     parser.add_argument("--traj_number", type=int, default=1)
     args = parser.parse_args()
 
